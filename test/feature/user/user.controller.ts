@@ -4,8 +4,13 @@ import { User } from './user.meta';
 
 @Controller('api/user')
 export class UserController {
-    @Get('get')
-    public async getUser(@Param('id') id: number): Promise<User> {
+    @Get('getById')
+    public async getUser(@Param('id') id: number, uid: number): Promise<User> {
+        return null;
+    }
+
+    @Get('search')
+    public async searchUser(@Param() user: User): Promise<User> {
         return null;
     }
 }
