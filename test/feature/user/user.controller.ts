@@ -1,8 +1,6 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { User } from './user.meta';
 import def, { unused } from './user.unused';
-
-
 @Controller('api/user')
 export class UserController {
     @Get('getById')

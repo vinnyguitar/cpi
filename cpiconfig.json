@@ -1,0 +1,7 @@
+{
+    "name": "cpi-test",
+    "version": "0.0.1",
+    "description":"description",
+    "rootDir": "test/feature",
+    "outDir": "dist"
+}

@@ -11,10 +11,10 @@
       "target": "es6",
       "sourceMap": true,
       "outDir": "./lib",
-      "baseUrl": "./src"
+      "baseUrl": "./src",
     },
     "include": [
-      "src/index.ts"
+      "src/cpi.ts"
     ],
     "exclude": [
       "node_modules",
