@@ -13,6 +13,6 @@ describe('test transformer', () => {
         const transformedSourceFile = result.transformed[0];
 
         const resultCode = printer.printFile(transformedSourceFile);
-        console.log('result: \n', resultCode);
+        expect(resultCode).toBe(fs.readFileSync(path.join(__dirname, 'expect/user.txt'), 'utf-8'));
     });
 });

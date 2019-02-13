@@ -1,13 +1,13 @@
 import * as ts from 'typescript';
 
 const supportMethod = ['get', 'post', 'put', 'all', 'delete', 'patch'];
+const ajaxName = 'window._cpi_ajax';
 
 export const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
 
+    const usedIdentifierNames = new Set<string>();
+
     const transformMethod = (node: ts.Node, prefix: string) => {
-        // if (ts.isDecorator(node)) {// 删除controller装饰器
-        //     return null;
-        // }
         if (ts.isMethodDeclaration(node)) {
             const [url, method] = resolveUrlAndMethod(node.decorators);
             if (method) {
@@ -27,8 +27,11 @@ export const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
                 return ts.visitEachChild(node, (cnode) => {
                     if (ts.isParameter(cnode)) {
                         const param = resolveSupportedParam(cnode);
-                        if (!param) {
+                        if (!param) { // 去掉非http参数
                             return null;
+                        }
+                        if (param.paramType) {
+                            usedIdentifierNames.add(param.paramType);
                         }
                         let assignment;
                         if (param.key) {
@@ -47,18 +50,21 @@ export const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
                                 paramArgProperties.push(assignment);
                                 break;
                         }
-                    }
-                    if (ts.isBlock(cnode)) {
-                        const aaa = ts.createPropertyAssignment('aaa', ts.createLiteral('/'));
-                        const call = ts.createCall(ts.createIdentifier('abc'),
+                    } else if (ts.isBlock(cnode)) {
+                        const call = ts.createCall(ts.createIdentifier(ajaxName),
                             undefined, [
                                 apiArg,
                                 methodArg,
                                 ts.createObjectLiteral(bodyArgProperties),
-                                ts.createObjectLiteral(paramArgProperties),
                                 ts.createObjectLiteral(queryArgProperties),
+                                ts.createObjectLiteral(paramArgProperties),
                             ]);
                         return ts.createBlock([ts.createReturn(call)]);
+                    } else if (ts.isTypeReferenceNode(cnode)) {
+                        const returnTypeNode = cnode.getChildAt(2);
+                        if (returnTypeNode) {
+                            usedIdentifierNames.add(returnTypeNode.getText());
+                        }
                     }
                     return cnode;
                 }, context);
@@ -78,7 +84,23 @@ export const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
     };
 
     const removeUnused = (node: ts.Node) => {
-        return node;
+        if (ts.isDecorator(node)) {
+            return null;
+        } else if (ts.isImportDeclaration(node)) {
+            const cntNode = node.getChildAt(1);
+            if (cntNode) {
+                const arr = cntNode.getText().replace(/[\{\}]/g, '').split(',').map((x) => x.trim());
+                let unused = true;
+                while (arr.length) {
+                    const item = arr.pop();
+                    unused = unused && !usedIdentifierNames.has(item);
+                }
+                if (unused) {
+                    return null;
+                }
+            }
+        }
+        return ts.visitEachChild(node, removeUnused, context);
     };
 
     return (node) => ts.visitNode(
@@ -121,10 +143,12 @@ function resolveSupportedParam(node: ts.Node) {
     const first = node.getChildAt(0);
     const firstMatch = /@(Param|Query|Body)\((.*)\)$/.exec(first && first.getText());
     if (firstMatch) {
+        const paramType = node.getChildAt(3);
         return {
             decoratorName: firstMatch[1],
             key: firstMatch[2],
             paramName: node.getChildAt(1).getText(),
+            paramType: paramType && paramType.getText(),
         };
     }
 }

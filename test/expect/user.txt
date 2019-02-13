@@ -1,0 +1,6 @@
+import { User } from './user.meta';
+export class UserController {
+    public async getUser(id: number, name: string, all: object): Promise<User> { return window._cpi_ajax("api/user/getById", "Get", {}, { 'id': id, 'name': name, ...all }, {}); }
+    public async searchUser(user: User): Promise<User> { return window._cpi_ajax("api/user/search", "Post", { ...user }, {}, {}); }
+    public async addUser(user: User) { return window._cpi_ajax("api/user/add", "Post", { ...user }, {}, {}); }
+}
