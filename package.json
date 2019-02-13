@@ -1,16 +1,18 @@
 {
   "name": "cpi",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "description": "controller to api",
   "main": "index.js",
   "scripts": {
     "test": "jest",
     "build": "tsc",
+    "prepare": "tsc",
     "output": "ts-node src/index.ts"
   },
   "bin": {
     "cpi": "./bin/cpi"
   },
+  "files": ["lib", "bin"],
   "author": "",
   "license": "ISC",
   "dependencies": {

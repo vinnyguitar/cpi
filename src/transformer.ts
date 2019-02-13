@@ -116,8 +116,9 @@ export const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
  * @param decorators
  */
 function getControllerPrefix(decorators: ts.NodeArray<ts.Decorator>): string | undefined {
-    const arr = decorators.filter((dec) => dec.expression.getChildAt(0).getText().toLowerCase() === 'controller');
-    if (arr.length) {
+    const arr = decorators
+        && decorators.filter((dec) => dec.expression.getChildAt(0).getText().toLowerCase() === 'controller');
+    if (arr && arr.length) {
         return arr[0].expression.getChildAt(2).getText().replace(/['"]/g, '') || '';
     }
 }
