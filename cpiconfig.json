@@ -1,7 +1,11 @@
 {
     "name": "cpi-test",
     "version": "0.0.1",
-    "description":"description",
+    "description": "description",
     "rootDir": "test/feature",
-    "outDir": "dist"
+    "outDir": "dist",
+    "files": [
+        "**/*.controller.ts",
+        "**/*.meta.ts"
+    ]
 }
