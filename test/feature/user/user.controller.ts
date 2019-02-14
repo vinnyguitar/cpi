@@ -3,6 +3,8 @@ import { User } from './user.meta';
 import def, { unused } from './user.unused';
 @Controller('api/user')
 export class UserController {
+    private readonly member = 1;
+    constructor(private readonly service: any) { }
     @Get('getById')
     public async getUser(
         @Query('id') id: number,

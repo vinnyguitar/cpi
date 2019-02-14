@@ -5,6 +5,8 @@ const ajaxName = 'window._cpi_ajax';
 
 export const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
 
+    let hasController = false;
+
     const usedIdentifierNames = new Set<string>();
 
     const transformMethod = (node: ts.Node, prefix: string) => {
@@ -77,6 +79,7 @@ export const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
         if (ts.isClassDeclaration(node)) {
             const prefix = getControllerPrefix(node.decorators);
             if (prefix !== undefined) {
+                hasController = true;
                 return ts.visitEachChild(node, (cnode: ts.Node) => transformMethod(cnode, prefix), context);
             }
         }
@@ -84,7 +87,12 @@ export const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
     };
 
     const removeUnused = (node: ts.Node) => {
-        if (ts.isDecorator(node)) {
+        if (!hasController) {
+            return node;
+        }
+        if (ts.isDecorator(node)
+            || ts.isConstructorDeclaration(node)
+            || ts.isPropertyDeclaration(node)) {
             return null;
         } else if (ts.isImportDeclaration(node)) {
             const cntNode = node.getChildAt(1);
