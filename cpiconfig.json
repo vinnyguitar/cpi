@@ -4,8 +4,7 @@
     "description": "description",
     "rootDir": "test/feature",
     "outDir": "dist",
-    "files": [
-        "**/*.controller.ts",
-        "**/*.meta.ts"
+    "controllers": [
+        "**/*.controller.ts"
     ]
 }
